@@ -7,6 +7,10 @@ public class UnoCard {
         this.face = face;
     }
 
+    public String getColor(){return this.color;}
+
+    public int getFace(){return this.face;}
+
     public String toString(){
         String faceAdd = "";
         if(face == 13)
