@@ -3,11 +3,13 @@ import java.util.ArrayList;
 import java.util.Scanner;
 public class UnoGame{
     private static final String[] COLORS = {"Red", "Yellow", "Green", "Blue"};
+    private char cPlayer;
     private ArrayList<UnoCard> deck, userHand, cpuHand;
     private Scanner input;
     private UnoCard lastCard;
     
     public UnoGame(){
+        this.cPlayer = 'u';
         this.deck = new ArrayList<UnoCard>();
         this.userHand = new ArrayList<UnoCard>();
         this.cpuHand = new ArrayList<UnoCard>();
@@ -39,16 +41,22 @@ public class UnoGame{
         int randFace = (int)Math.floor(Math.random() * 9);
         lastCard = new UnoCard(COLORS[randColor], randFace);
         System.out.println("Starting card is: " + lastCard);
-        System.out.print("Your Cards: ");
-        printArrList(userHand);
-        System.out.print("Please choose a valid card: ");
-        String choice = input.nextLine();
-        int ind = Integer.parseInt(choice); // TODO add input protection.
-        if(this.canPlace(userHand.get(ind))){
-            lastCard = userHand.get(ind);
-            userHand.remove(ind);
-        }
-        printArrList(userHand);
+        if(cPlayer == 'u'){
+            System.out.print("Your Cards: ");
+            printArrList(userHand);
+            if(hasPlayableCard(userHand)){
+                System.out.print("Please choose a valid card: ");
+                String choice = input.nextLine();
+                int ind = Integer.parseInt(choice); // TODO add input protection.
+                if(this.canPlace(userHand.get(ind))){// TODO wild cards, reverse, skip.
+                    lastCard = userHand.get(ind);
+                    userHand.remove(ind);
+                }
+            }else{
+                //  draw more cards from deck
+                this.drawUntilPlayable();
+            }
+        }    //printArrList(userHand);
         System.out.println(lastCard);
         
     }
@@ -59,6 +67,28 @@ public class UnoGame{
         return false;
     }
 
+    public boolean hasPlayableCard(ArrayList<UnoCard> hand){
+        for(UnoCard c : hand)
+            if(this.canPlace(c))
+                return true;
+        return false;
+    }
+
+    public void drawUntilPlayable(){
+        if(cPlayer == 'u'){
+            while(!this.hasPlayableCard(userHand)){
+                this.userHand.add(this.deck.get(0));
+                this.deck.remove(0);
+            }
+        }
+        else if(cPlayer == 'c'){
+            while(!this.hasPlayableCard(cpuHand)){
+                this.cpuHand.add(this.deck.get(0));
+                this.deck.remove(0);
+            }
+        }
+    }
+
     public void deal(){
         for(int i = 0; i < 7; i++){
             userHand.add(deck.get(0));
@@ -66,6 +96,13 @@ public class UnoGame{
             cpuHand.add(deck.get(0));
             deck.remove(0);
         }
+    }
+
+    public void changePlayer(){
+        if(this.cPlayer == 'u')
+            this.cPlayer = 'c';
+        else
+            this.cPlayer = 'u';
     }
 
     public void shuffle(){
