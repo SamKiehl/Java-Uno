@@ -1,6 +1,6 @@
 public class UnoCard {
     private String color;
-    private int face; /* 0 - 9 nums, 10: skip, 11: reverse, 12: +2, 13: Wild, 14: +4 Wild */
+    private int face; /* 1 - 9 nums, 10: skip, 11: reverse, 12: +2, 13: Wild, 14: +4 Wild */
 
     public UnoCard(String color, int face){
         this.color = color;
@@ -23,8 +23,10 @@ public class UnoCard {
             faceAdd = "Reverse";
         else if(face == 12)
             faceAdd = "+2";
+        else if(face < 1 || face > 14)
+            faceAdd = "";
         else
-            faceAdd = face+"";
+            faceAdd = face + "";
         
         return color + " " + faceAdd;
     }
