@@ -33,19 +33,20 @@ public class UnoGame{
         }
     }
 
-    public void play1P(){ // TODO handle 1 card left and no cards left, implement bot and eventually play2p() method.
+    public void play1P(){ // Possibly make a play2p() method.
         this.fillDeck();
         this.shuffle();
         this.deal();
         int randColor = (int)Math.floor(Math.random() * 4);
         int randFace = (int)Math.floor(Math.random() * 9);
         currentCard = new UnoCard(COLORS[randColor], randFace);
-        System.out.println("Starting card is: " + currentCard);
+        System.out.println("\nStarting card is: " + currentCard);
         String choice = "start";
         boolean hasPlayed;
         while(!choice.equals("quit")){
             hasPlayed = false;
             if(cPlayer == 'u'){
+                System.out.println("It is your turn!");
                 System.out.print("Your Cards: ");
                 printArrList(userHand);
                 if(hasPlayableCard(userHand)){
@@ -75,7 +76,7 @@ public class UnoGame{
                 System.out.println("Computer's Turn.");
                 for(int i = 0; i < this.cpuHand.size(); i++){
                     if(this.canPlace(cpuHand.get(i))){
-                        System.out.println("Computer Plays a " + cpuHand.get(i));
+                        System.out.println("Computer Plays a " + cpuHand.get(i) + ".");
                         hasPlayed = this.checkAndPlay(i);
                         break;
                     }
@@ -87,13 +88,17 @@ public class UnoGame{
             }
             if(userHand.size() == 0){
                 System.out.println("User wins!");
-            }else if(cpuHand.size() == 0){
-                System.out.println("Computer wins!");
-            }else{
-                if(hasPlayed && this.currentCard.getFace() != 10 && this.currentCard.getFace() != 11) // 10 and 11 are the indices for skip and reverse (in 2 player uno, reverse acts as a skip).
-                    this.changePlayer();
-                System.out.println("Current Card: " + currentCard);
+                return;
             }
+            if(cpuHand.size() == 0){
+                System.out.println("Computer wins!");
+                return;
+            }
+            if(this.currentCard.getFace() == 12 || this.currentCard.getFace() == 14)
+                plusCard();
+            if(hasPlayed && this.currentCard.getFace() != 10 && this.currentCard.getFace() != 11) // 10 and 11 are the indices for skip and reverse (in 2 player uno, reverse acts as a skip).
+                this.changePlayer();
+            System.out.println("\nCurrent Card: " + currentCard + ".");
         }
     }
 
@@ -112,9 +117,13 @@ public class UnoGame{
             return false;
         }else{
             if(this.canPlace(cpuHand.get(index))){
-                currentCard = cpuHand.get(index);
-                cpuHand.remove(index);
-                // TODO handle cpu wild card.
+                if(cpuHand.get(index).getFace() == 13 || cpuHand.get(index).getFace() == 14){
+                    wild();
+                    cpuHand.remove(index);
+                }else{
+                    currentCard = cpuHand.get(index);
+                    cpuHand.remove(index);
+                }
                 return true;
             }
             return false;
@@ -137,14 +146,14 @@ public class UnoGame{
     public void drawUntilPlayable(){
         if(cPlayer == 'u'){
             while(!this.hasPlayableCard(userHand)){
-                System.out.println("User draws " + this.deck.get(0));
+                System.out.println(">  User draws " + this.deck.get(0));
                 this.userHand.add(this.deck.get(0));
                 this.deck.remove(0);
             }
         }
         else if(cPlayer == 'c'){
             while(!this.hasPlayableCard(cpuHand)){
-                System.out.println("Computer draws " + this.deck.get(0));
+                System.out.println(">  Computer draws a card.");
                 this.cpuHand.add(this.deck.get(0));
                 this.deck.remove(0);
             }
@@ -173,13 +182,42 @@ public class UnoGame{
             this.cPlayer = 'u';
     }
 
+    public void plusCard(){
+        char opponent = this.getOpponent();
+        int cards = 0;
+        if(this.currentCard.getFace() == 12)
+            cards = 2;
+        else if(this.currentCard.getFace() == 14)
+            cards = 4;
+        if(opponent == 'c'){
+            for(int i = 0; i < cards; i++){
+                this.cpuHand.add(deck.get(0));
+                System.out.println(">  Computer draws a card.");
+                deck.remove(0);
+            }
+        }else if(opponent == 'u'){
+            for(int i = 0; i < cards; i++){
+                this.userHand.add(deck.get(0));
+                System.out.println(">  You draw a " + deck.get(0) + ".");
+                deck.remove(0);
+            }
+        }
+    }
+
     public void wild(){
         String newColor = "start";
-        while(!(newColor.equals("red") || newColor.equals("blue") || newColor.equals("green") || newColor.equals("yellow"))){
-            System.out.println("Please choose a new color: ");
-            newColor = input.nextLine().toLowerCase();
+        if(cPlayer == 'u'){
+            while(!(newColor.equals("red") || newColor.equals("blue") || newColor.equals("green") || newColor.equals("yellow"))){
+                System.out.println("Please choose a new color: ");
+                newColor = input.nextLine().toLowerCase();
+            }
+            System.out.println("You chose " + newColor + " as the new color!");
+            newColor = newColor.substring(0, 1).toUpperCase() + newColor.substring(1).toLowerCase(); // Scuffed but we ain't stressin.
+        }else{
+            int rand = (int)Math.floor(Math.random() * 3);
+            newColor = COLORS[rand].substring(0, 1).toUpperCase() + COLORS[rand].substring(1).toLowerCase();
+            System.out.println("Computer chose " + newColor + " as the new color!");
         }
-        newColor = newColor.substring(0, 1).toUpperCase() + newColor.substring(1).toLowerCase(); // Scuffed but we ain't stressin.
         currentCard = new UnoCard(newColor, 15); // 15 is an arbitrary number for a card. No card will have a face value of 15.
     }
 
