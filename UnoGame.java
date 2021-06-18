@@ -42,17 +42,19 @@ public class UnoGame{
         currentCard = new UnoCard(COLORS[randColor], randFace);
         System.out.println("Starting card is: " + currentCard);
         String choice = "start";
+        boolean hasPlayed;
         while(!choice.equals("quit")){
+            hasPlayed = false;
             if(cPlayer == 'u'){
                 System.out.print("Your Cards: ");
                 printArrList(userHand);
                 if(hasPlayableCard(userHand)){
-                    System.out.print("Please choose a valid card: ");
+                    System.out.print("Please choose a valid card (type 'quit' to quit): ");
                     choice = input.nextLine();
                     if(choice.equals("quit"))
                             return;
                     int ind = Integer.parseInt(choice); // TODO add input protection.
-                    this.checkAndPlay(ind);
+                    hasPlayed = this.checkAndPlay(ind);
                 }else{
                     //  draw more cards from deck
                     while(!hasPlayableCard(userHand))
@@ -60,20 +62,42 @@ public class UnoGame{
                     System.out.print("Your Cards: ");
                     printArrList(userHand);
                     if(hasPlayableCard(userHand)){
-                        System.out.print("Please choose a valid card: ");
+                        System.out.print("Please choose a valid card (type 'quit' to quit): ");
                         choice = input.nextLine();
                         if(choice.equals("quit"))
                             return;
                         int ind = Integer.parseInt(choice); // TODO add input protection.
-                        this.checkAndPlay(ind);
+                        hasPlayed = this.checkAndPlay(ind);
                     }
                 }
-            }    //printArrList(userHand);
-            System.out.println("Current Card: " + currentCard);
+            }
+            else if(cPlayer == 'c'){
+                System.out.println("Computer's Turn.");
+                for(int i = 0; i < this.cpuHand.size(); i++){
+                    if(this.canPlace(cpuHand.get(i))){
+                        System.out.println("Computer Plays a " + cpuHand.get(i));
+                        hasPlayed = this.checkAndPlay(i);
+                        break;
+                    }
+                }
+                if(!hasPlayed){
+                    while(!hasPlayableCard(cpuHand))
+                        this.drawUntilPlayable();
+                }
+            }
+            if(userHand.size() == 0){
+                System.out.println("User wins!");
+            }else if(cpuHand.size() == 0){
+                System.out.println("Computer wins!");
+            }else{
+                if(hasPlayed && this.currentCard.getFace() != 10 && this.currentCard.getFace() != 11) // 10 and 11 are the indices for skip and reverse (in 2 player uno, reverse acts as a skip).
+                    this.changePlayer();
+                System.out.println("Current Card: " + currentCard);
+            }
         }
     }
 
-    public void checkAndPlay(int index){ // TODO wild, reverse, wild +4, skip, etc
+    public boolean checkAndPlay(int index){ // TODO wild, reverse, wild +4, skip, etc
         if(this.cPlayer == 'u'){
             if(this.canPlace(userHand.get(index))){
                 if(userHand.get(index).getFace() == 13 || userHand.get(index).getFace() == 14){
@@ -83,13 +107,17 @@ public class UnoGame{
                     currentCard = userHand.get(index);
                     userHand.remove(index);
                 }
+                return true;
             }
+            return false;
         }else{
             if(this.canPlace(cpuHand.get(index))){
                 currentCard = cpuHand.get(index);
                 cpuHand.remove(index);
                 // TODO handle cpu wild card.
+                return true;
             }
+            return false;
         }
     }
 
