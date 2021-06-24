@@ -40,7 +40,7 @@ public class UnoGame{
         int randColor = (int)Math.floor(Math.random() * 4);
         int randFace = (int)Math.floor(Math.random() * 9);
         currentCard = new UnoCard(COLORS[randColor], randFace);
-        System.out.println("\nStarting card is: " + currentCard);
+        System.out.println("\nStarting card is: " + currentCard + ".");
         String choice = "start";
         boolean hasPlayed;
         while(!choice.equals("quit")){
@@ -55,6 +55,9 @@ public class UnoGame{
                     if(choice.equals("quit"))
                             return;
                     int ind = Integer.parseInt(choice); // TODO add input protection.
+                    System.out.println(">  User Plays a " + userHand.get(ind) + ".");
+                    if(this.currentCard.getFace() == 14)
+                        plusCard();
                     hasPlayed = this.checkAndPlay(ind);
                 }else{
                     //  draw more cards from deck
@@ -68,6 +71,7 @@ public class UnoGame{
                         if(choice.equals("quit"))
                             return;
                         int ind = Integer.parseInt(choice); // TODO add input protection.
+                        System.out.println(">  User Plays a " + userHand.get(ind) + ".");
                         hasPlayed = this.checkAndPlay(ind);
                     }
                 }
@@ -76,7 +80,7 @@ public class UnoGame{
                 System.out.println("Computer's Turn.");
                 for(int i = 0; i < this.cpuHand.size(); i++){
                     if(this.canPlace(cpuHand.get(i))){
-                        System.out.println("Computer Plays a " + cpuHand.get(i) + ".");
+                        System.out.println(">  Computer Plays a " + cpuHand.get(i) + ".");
                         hasPlayed = this.checkAndPlay(i);
                         break;
                     }
