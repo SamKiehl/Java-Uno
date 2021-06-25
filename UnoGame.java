@@ -56,8 +56,6 @@ public class UnoGame{
                             return;
                     int ind = Integer.parseInt(choice); // TODO add input protection.
                     System.out.println(">  User Plays a " + userHand.get(ind) + ".");
-                    if(this.currentCard.getFace() == 14)
-                        plusCard();
                     hasPlayed = this.checkAndPlay(ind);
                 }else{
                     //  draw more cards from deck
@@ -98,18 +96,22 @@ public class UnoGame{
                 System.out.println("Computer wins!");
                 return;
             }
-            if(this.currentCard.getFace() == 12 || this.currentCard.getFace() == 14)
-                plusCard();
+            if(this.currentCard.getFace() == 12)
+                plusCard(2);
             if(hasPlayed && this.currentCard.getFace() != 10 && this.currentCard.getFace() != 11) // 10 and 11 are the indices for skip and reverse (in 2 player uno, reverse acts as a skip).
                 this.changePlayer();
             System.out.println("\nCurrent Card: " + currentCard + ".");
         }
     }
 
-    public boolean checkAndPlay(int index){ // TODO wild, reverse, wild +4, skip, etc
+    public boolean checkAndPlay(int index){ 
         if(this.cPlayer == 'u'){
             if(this.canPlace(userHand.get(index))){
-                if(userHand.get(index).getFace() == 13 || userHand.get(index).getFace() == 14){
+                if(userHand.get(index).getFace() == 13){
+                    wild();
+                    userHand.remove(index);
+                }else if(userHand.get(index).getFace() == 14){
+                    plusCard(4);
                     wild();
                     userHand.remove(index);
                 }else{
@@ -121,7 +123,11 @@ public class UnoGame{
             return false;
         }else{
             if(this.canPlace(cpuHand.get(index))){
-                if(cpuHand.get(index).getFace() == 13 || cpuHand.get(index).getFace() == 14){
+                if(cpuHand.get(index).getFace() == 13){
+                    wild();
+                    cpuHand.remove(index);
+                }else if(cpuHand.get(index).getFace() == 14){
+                    plusCard(4);
                     wild();
                     cpuHand.remove(index);
                 }else{
@@ -186,21 +192,16 @@ public class UnoGame{
             this.cPlayer = 'u';
     }
 
-    public void plusCard(){
+    public void plusCard(int amount){
         char opponent = this.getOpponent();
-        int cards = 0;
-        if(this.currentCard.getFace() == 12)
-            cards = 2;
-        else if(this.currentCard.getFace() == 14)
-            cards = 4;
         if(opponent == 'c'){
-            for(int i = 0; i < cards; i++){
+            for(int i = 0; i < amount; i++){
                 this.cpuHand.add(deck.get(0));
                 System.out.println(">  Computer draws a card.");
                 deck.remove(0);
             }
         }else if(opponent == 'u'){
-            for(int i = 0; i < cards; i++){
+            for(int i = 0; i < amount; i++){
                 this.userHand.add(deck.get(0));
                 System.out.println(">  You draw a " + deck.get(0) + ".");
                 deck.remove(0);
